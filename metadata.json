@@ -1,0 +1,6 @@
+{
+  "name": "SENTINEL 2.0 - AI Integrated Physiological Response Monitoring System",
+  "description": "Real-time physiological response monitoring system with ESP32 firmware, biometric signal processing, interactive scientific dashboard, and AI wellness analysis.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
