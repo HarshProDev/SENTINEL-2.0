@@ -1,3 +1,4 @@
+ HEAD
 # SENTINEL 2.0 - Real-Time Physiological Response Monitoring
 
 SENTINEL 2.0 is an open, reproducible, end-to-end IoT and AI physiological monitoring system designed for student researchers, biomedical engineering labs, and embedded developers targeting **₹0 extra hardware cost**.
@@ -84,3 +85,7 @@ Open your browser at `http://localhost:3000`.
 * [`docs/TESTING.md`](docs/TESTING.md): Formal test plans and acceptance criteria.
 * [`docs/BOM.md`](docs/BOM.md): Complete Bill of Materials for ₹0 added spend.
 * [`docs/FAQ.md`](docs/FAQ.md): Viva examination questions, answers, and 3-minute presentation script.
+
+# SENTINEL-2.0
+
+ ab0d38edba02d301d7490ee2ce1691ecb348e7d2
