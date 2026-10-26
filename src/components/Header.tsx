@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { memo } from 'react';
 import { Activity, Wifi, WifiOff, Cpu, RefreshCw, Radio, Play, Square, BarChart3, Cable, Code2, BookOpen, HeartPulse } from 'lucide-react';
 import { SignalQuality } from '../types/sentinel';
 
@@ -21,7 +21,7 @@ interface HeaderProps {
   lastDataAgeMs: number;
 }
 
-export const Header: React.FC<HeaderProps> = ({
+export const Header: React.FC<HeaderProps> = memo(({
   activeTab,
   setActiveTab,
   connectionMode,
@@ -241,4 +241,4 @@ export const Header: React.FC<HeaderProps> = ({
       </div>
     </header>
   );
-};
+});

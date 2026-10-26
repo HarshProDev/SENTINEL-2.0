@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630">
+  <defs>
+    <linearGradient id="background" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#203943"/>
+      <stop offset=".55" stop-color="#245c5a"/>
+      <stop offset="1" stop-color="#347c68"/>
+    </linearGradient>
+    <radialGradient id="glow" cx="90%" cy="5%" r="75%">
+      <stop offset="0" stop-color="#89cbb5" stop-opacity=".34"/>
+      <stop offset="1" stop-color="#89cbb5" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+  <rect width="1200" height="630" fill="url(#background)"/>
+  <rect width="1200" height="630" fill="url(#glow)"/>
+  <circle cx="1030" cy="120" r="205" fill="none" stroke="#d9f4e6" stroke-opacity=".13" stroke-width="2"/>
+  <circle cx="1030" cy="120" r="160" fill="none" stroke="#d9f4e6" stroke-opacity=".1" stroke-width="2"/>
+  <rect x="78" y="72" width="58" height="58" rx="19" fill="#ffffff" fill-opacity=".12" stroke="#e7fff1" stroke-opacity=".4"/>
+  <path d="M87 103h12l6-11 8 24 7-17 4 4h9" fill="none" stroke="#e5fff0" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.6"/>
+  <text x="158" y="109" fill="#eff9f3" font-family="Arial, Helvetica, sans-serif" font-size="25" font-weight="700" letter-spacing="3">SENTINEL 2.0</text>
+  <text x="80" y="250" fill="#b6e3d1" font-family="Arial, Helvetica, sans-serif" font-size="16" font-weight="700" letter-spacing="4">OPEN-SOURCE ESP32 PROJECT</text>
+  <text x="76" y="330" fill="#ffffff" font-family="Arial, Helvetica, sans-serif" font-size="62" font-weight="700" letter-spacing="-2">Physiological</text>
+  <text x="76" y="400" fill="#a6ddc3" font-family="Arial, Helvetica, sans-serif" font-size="62" font-weight="700" letter-spacing="-2">Monitoring</text>
+  <text x="80" y="460" fill="#eff9f3" fill-opacity=".82" font-family="Arial, Helvetica, sans-serif" font-size="22">Live pulse and skin-response signals, in focus.</text>
+  <rect x="80" y="510" width="1040" height="1" fill="#e7fff1" fill-opacity=".23"/>
+  <text x="80" y="550" fill="#d7eee2" fill-opacity=".75" font-family="Arial, Helvetica, sans-serif" font-size="16" letter-spacing="1.5">PPG  ·  GSR  ·  SIGNAL ANALYTICS  ·  AI WELLNESS INSIGHTS</text>
+  <path d="M760 340h78l20-3 12-14 15 36 20-76 24 110 18-53h87l14-3 12-13 14 29 16-20h87" fill="none" stroke="#b0e7ce" stroke-linecap="round" stroke-linejoin="round" stroke-width="4" opacity=".8"/>
+</svg>

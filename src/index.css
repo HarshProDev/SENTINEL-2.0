@@ -18,7 +18,7 @@
 }
 
 body {
-  min-width: 360px;
+  min-width: 320px;
   min-height: 100vh;
   margin: 0;
 }
@@ -92,7 +92,7 @@ input {
 }
 
 .sentinel-header nav .header-tab-idle {
-  color: #718280;
+  color: #596b67;
   background: transparent;
 }
 
@@ -133,7 +133,9 @@ input {
       transparent 19rem
     ),
     linear-gradient(119deg, #203943 0%, #245c5a 50%, #347c68 100%);
-  background-size: auto, 170% 170%;
+  background-size:
+    auto,
+    170% 170%;
   box-shadow: 0 18px 42px rgba(39, 91, 76, 0.18);
   animation:
     content-arrive 0.55s cubic-bezier(0.2, 0.7, 0.2, 1) both,
@@ -342,8 +344,8 @@ input {
       transparent 28rem
     ),
     rgba(16, 43, 49, 0.38);
-  -webkit-backdrop-filter: blur(17px) saturate(135%);
-  backdrop-filter: blur(17px) saturate(135%);
+  -webkit-backdrop-filter: blur(20px) saturate(120%);
+  backdrop-filter: blur(20px) saturate(120%);
   transition:
     transform 1.15s cubic-bezier(0.77, 0, 0.18, 1),
     visibility 1.15s;
@@ -362,11 +364,13 @@ input {
   content: "";
   pointer-events: none;
   transform: translate(-50%, -50%);
+  /* backdrop-filter: blur(20px); */
 }
 
 .welcome-opening::after {
   width: min(55vw, 490px);
   border-color: rgba(228, 255, 242, 0.12);
+  /* backdrop-filter: blur(10px); */
 }
 
 .opening-rings {
@@ -406,13 +410,14 @@ input {
       rgba(196, 238, 222, 0.08) 50%,
       rgba(237, 255, 250, 0.13)
     );
-  -webkit-backdrop-filter: blur(28px) saturate(160%);
-  backdrop-filter: blur(28px) saturate(160%);
+  -webkit-backdrop-filter: blur(14px) saturate(145%);
+  backdrop-filter: blur(14px) saturate(145%);
   box-shadow:
     0 35px 100px rgba(8, 36, 39, 0.22),
     inset 0 1px 0 rgba(255, 255, 255, 0.46),
     inset 0 -1px 0 rgba(224, 255, 239, 0.13);
   text-align: center;
+  /* backdrop-filter: blur(20px); */
 }
 
 .opening-glass::before {
@@ -519,7 +524,7 @@ input {
   box-shadow: 0 0 12px rgba(166, 221, 195, 0.65);
   transform: scaleX(0);
   transform-origin: left;
-  animation: opening-progress 4.6s linear both;
+  animation: opening-progress 2.6s linear both;
 }
 
 .opening-caption {
@@ -554,12 +559,10 @@ input {
 @keyframes opening-word-arrive {
   from {
     opacity: 0;
-    filter: blur(5px);
     transform: translateY(13px);
   }
   to {
     opacity: 1;
-    filter: blur(0);
     transform: translateY(0);
   }
 }
@@ -588,7 +591,7 @@ input {
 
 .dashboard-intro p {
   margin: 8px 0 0;
-  color: #748582;
+  color: #596b67;
   font-size: 13px;
 }
 
@@ -615,7 +618,7 @@ input {
 
 .intro-meta div span {
   margin-top: 3px;
-  color: #82918e;
+  color: #596b67;
   font-size: 10px;
 }
 
@@ -728,6 +731,28 @@ input {
   gap: 14px;
 }
 
+.deferred-waveforms {
+  min-height: 700px;
+}
+
+.deferred-ai {
+  min-height: 300px;
+}
+
+.deferred-simulator {
+  min-height: 340px;
+}
+
+@media (min-width: 901px) {
+  .deferred-waveforms {
+    min-height: 340px;
+  }
+
+  .deferred-ai {
+    min-height: 170px;
+  }
+}
+
 .signal-panel .bg-\[\#090e1a\] {
   background: #f8fbfa;
   border-color: #e3ece9;
@@ -788,11 +813,11 @@ input {
 }
 
 .sentinel-app .text-slate-400 {
-  color: #71827f;
+  color: #596b67;
 }
 
 .sentinel-app .text-slate-500 {
-  color: #899692;
+  color: #657572;
 }
 
 .sentinel-app :is(h1, h2, h3, h4, td).text-white {
@@ -801,7 +826,7 @@ input {
 
 .sentinel-app .text-cyan-300,
 .sentinel-app .text-cyan-400 {
-  color: #237d72;
+  color: #1c7168;
 }
 
 .sentinel-app .text-blue-300,
@@ -810,17 +835,17 @@ input {
 }
 
 .sentinel-app .text-emerald-400 {
-  color: #17845f;
+  color: #136f4e;
 }
 
 .sentinel-app .text-rose-300,
 .sentinel-app .text-rose-400 {
-  color: #bd466a;
+  color: #a43e55;
 }
 
 .sentinel-app .text-amber-300,
 .sentinel-app .text-amber-400 {
-  color: #a66b10;
+  color: #88570d;
 }
 
 .sentinel-app [class*="bg-slate-950/"],
@@ -830,7 +855,7 @@ input {
 
 .sentinel-app [class*="bg-cyan-950/"],
 .sentinel-app [class*="bg-blue-950/"] {
-  background-color: #f0efff;
+  background-color: #edf5f1;
 }
 
 .sentinel-app [class*="bg-emerald-950"] {
@@ -970,7 +995,7 @@ input {
 }
 
 .mode-switch button[class*="text-slate-400"] {
-  color: #71827f;
+  color: #596b67;
 }
 
 .sentinel-app .bg-emerald-600 {
@@ -1006,12 +1031,12 @@ input {
 
 .sentinel-app .text-rose-300,
 .sentinel-app .text-rose-400 {
-  color: #b84e65;
+  color: #a43e55;
 }
 
 .sentinel-app .text-amber-300,
 .sentinel-app .text-amber-400 {
-  color: #9b681b;
+  color: #88570d;
 }
 
 .sentinel-app .text-violet-300,
@@ -1178,6 +1203,34 @@ input {
 }
 
 @media (max-width: 640px) {
+  .welcome-opening {
+    transition-duration: 0.65s;
+  }
+  .sentinel-header {
+    background: #fff;
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+  }
+  .dashboard-intro,
+  .measurements-grid {
+    animation: none;
+  }
+  .welcome-opening,
+  .opening-glass {
+    -webkit-backdrop-filter: blur(10px);
+    backdrop-filter: blur(10px);
+  }
+  .opening-glass::after {
+    display: none;
+  }
+  .welcome-hero,
+  .sentinel-app .pulse-feature,
+  .brand-mark,
+  .welcome-byline-heart,
+  .welcome-trace path,
+  .intro-dot.is-live {
+    animation: none;
+  }
   .opening-glass {
     width: min(90vw, 500px);
     min-height: 350px;

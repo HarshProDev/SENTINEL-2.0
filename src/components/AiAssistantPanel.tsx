@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { memo, useState } from 'react';
 import { Sparkles, AlertTriangle, ShieldCheck, CheckCircle2, RefreshCw, Eye, EyeOff } from 'lucide-react';
 import { AiInterpretationRequest, AiInterpretationResponse, SignalQuality } from '../types/sentinel';
 
@@ -13,7 +13,7 @@ interface AiAssistantPanelProps {
   overallQuality: SignalQuality;
 }
 
-export const AiAssistantPanel: React.FC<AiAssistantPanelProps> = ({
+export const AiAssistantPanel: React.FC<AiAssistantPanelProps> = memo(({
   sessionDuration,
   meanBpm,
   minBpm,
@@ -266,4 +266,4 @@ export const AiAssistantPanel: React.FC<AiAssistantPanelProps> = ({
       )}
     </div>
   );
-};
+});

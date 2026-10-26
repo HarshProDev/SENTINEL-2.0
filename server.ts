@@ -5,6 +5,7 @@
  */
 
 import express, { Request, Response } from 'express';
+import compression from 'compression';
 import dotenv from 'dotenv';
 import path from 'path';
 import { fileURLToPath } from 'url';
@@ -20,6 +21,7 @@ const __dirname = path.dirname(__filename);
 const app = express();
 const PORT = process.env.PORT ? parseInt(process.env.PORT, 10) : 3000;
 
+app.use(compression());
 app.use(express.json({ limit: '256kb' }));
 
 function getText(value: unknown, fallback: string): string {
@@ -346,8 +348,19 @@ async function startServer() {
     app.use(vite.middlewares);
   } else {
     const distPath = path.join(__dirname, 'dist');
-    app.use(express.static(distPath));
+    app.use(express.static(distPath, {
+      setHeaders(response, filePath) {
+        if (path.basename(filePath) === 'index.html') {
+          response.setHeader('Cache-Control', 'no-cache');
+        } else if (filePath.includes(`${path.sep}assets${path.sep}`)) {
+          response.setHeader('Cache-Control', 'public, max-age=31536000, immutable');
+        } else {
+          response.setHeader('Cache-Control', 'public, max-age=86400');
+        }
+      },
+    }));
     app.get('*', (req, res) => {
+      res.setHeader('Cache-Control', 'no-cache');
       res.sendFile(path.join(distPath, 'index.html'));
     });
   }

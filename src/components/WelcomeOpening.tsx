@@ -6,12 +6,8 @@ const greetings = [
   'Bonjour',
   'Hola',
   'Ciao',
-  'Hallo',
   'こんにちは',
-  '안녕하세요',
-  'مرحبا',
   'नमस्ते',
-  'Привет',
 ];
 
 const GREETING_INTERVAL_MS = 500;

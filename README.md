@@ -49,6 +49,13 @@ npm run dev
 ```
 Open your browser at `http://localhost:3000`.
 
+For Lighthouse or other performance testing, measure the optimized production build rather than the Vite development server:
+```bash
+npm run build
+npm run start:production
+```
+Then run Lighthouse against `http://localhost:3000`. The development server intentionally includes development tooling and unminified modules, so its JavaScript size and performance scores do not represent the deployed app.
+
 ### 2. Connect the ESP32 and view live readings
 * In the dashboard header, select **ESP32 Wi-Fi**.
 * Connect your computer to the same **2.4 GHz Wi-Fi** network as the ESP32 and enter the current IP shown on its OLED. If the ESP32 is using its fallback network, join **SENTINEL-2-AP** and select **Use AP IP** (`192.168.4.1`). The fallback network does not provide internet access; keep the dashboard open at `localhost`.

@@ -1,13 +1,6 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { Suspense, lazy, useCallback, useEffect, useRef, useState } from 'react';
 import { Header } from './components/Header';
 import { MeasurementCards } from './components/MeasurementCards';
-import { RealTimeOscilloscope } from './components/RealTimeOscilloscope';
-import { AiAssistantPanel } from './components/AiAssistantPanel';
-import { SimulatorControls } from './components/SimulatorControls';
-import { SessionManager } from './components/SessionManager';
-import { HardwareHub } from './components/HardwareHub';
-import { FirmwareExporter } from './components/FirmwareExporter';
-import { DocumentationViewer } from './components/DocumentationViewer';
 import { WelcomeHero } from './components/WelcomeHero';
 import { WelcomeOpening } from './components/WelcomeOpening';
 import { PulseProcessor } from './utils/pulse_processor';
@@ -22,6 +15,60 @@ import {
 } from './types/sentinel';
 
 import { Heart } from 'lucide-react';
+
+const RealTimeOscilloscope = lazy(() =>
+  import('./components/RealTimeOscilloscope').then(({ RealTimeOscilloscope }) => ({ default: RealTimeOscilloscope })),
+);
+const AiAssistantPanel = lazy(() =>
+  import('./components/AiAssistantPanel').then(({ AiAssistantPanel }) => ({ default: AiAssistantPanel })),
+);
+const SimulatorControls = lazy(() =>
+  import('./components/SimulatorControls').then(({ SimulatorControls }) => ({ default: React.memo(SimulatorControls) })),
+);
+const SessionManager = lazy(() =>
+  import('./components/SessionManager').then(({ SessionManager }) => ({ default: SessionManager })),
+);
+const HardwareHub = lazy(() =>
+  import('./components/HardwareHub').then(({ HardwareHub }) => ({ default: HardwareHub })),
+);
+const FirmwareExporter = lazy(() =>
+  import('./components/FirmwareExporter').then(({ FirmwareExporter }) => ({ default: FirmwareExporter })),
+);
+const DocumentationViewer = lazy(() =>
+  import('./components/DocumentationViewer').then(({ DocumentationViewer }) => ({ default: DocumentationViewer })),
+);
+
+const DeferredContent: React.FC<{ className: string; children: React.ReactNode }> = ({ className, children }) => {
+  const [isNearViewport, setIsNearViewport] = useState(false);
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const container = containerRef.current;
+    if (!container) return;
+    if (!('IntersectionObserver' in window)) {
+      setIsNearViewport(true);
+      return;
+    }
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setIsNearViewport(true);
+          observer.disconnect();
+        }
+      },
+      { rootMargin: '150px 0px' },
+    );
+    observer.observe(container);
+    return () => observer.disconnect();
+  }, []);
+
+  return (
+    <div ref={containerRef} className={className} aria-busy={!isNearViewport}>
+      {isNearViewport && children}
+    </div>
+  );
+};
 
 function formatDeviceError(error: unknown, deviceIp: string): string {
   if (error instanceof DOMException && error.name === 'AbortError') {
@@ -103,6 +150,13 @@ export default function App() {
   const simPhaseRef = useRef<number>(0);
   const lastPacketTimeRef = useRef<number>(Date.now());
   const sessionSamplesRef = useRef<SessionRecord['samples']>([]);
+  const lastSimulatorUiUpdateRef = useRef<number>(0);
+  const simulatorPulseHistoryRef = useRef<
+    Array<{ timestampMs: number; rawAdc: number; filteredAc: number; threshold: number; isPeak: boolean }>
+  >([]);
+  const simulatorGsrHistoryRef = useRef<
+    Array<{ timestampMs: number; relativeChange: number; smoothedAdc: number; baseline: number }>
+  >([]);
 
   // Simulator telemetry loop
   useEffect(() => {
@@ -116,9 +170,12 @@ export default function App() {
       if (simDisconnected) {
         const pulse = pulseProcRef.current.processSample(0, now);
         const gsr = gsrProcRef.current.processSample(5);
-        setLatestPulse(pulse);
-        setLatestGsr(gsr);
-        setOverallQuality('DISCONNECTED');
+        if (now - lastSimulatorUiUpdateRef.current >= 100) {
+          lastSimulatorUiUpdateRef.current = now;
+          setLatestPulse(pulse);
+          setLatestGsr(gsr);
+          setOverallQuality('DISCONNECTED');
+        }
         return;
       }
 
@@ -157,52 +214,52 @@ export default function App() {
       const pulseRes = pulseProcRef.current.processSample(rawPulse, now);
       const gsrRes = gsrProcRef.current.processSample(rawGsr);
 
-      setLatestPulse(pulseRes);
-      setLatestGsr(gsrRes);
-      setIsCalibrating(gsrProcRef.current.isCalibrationActive());
-      setCalibrationProgress(gsrProcRef.current.getCalibrationProgress());
-
       // Overall quality determination
+      let currentQuality: SignalQuality;
       if (pulseRes.quality === 'DISCONNECTED' || gsrRes.quality === 'DISCONNECTED') {
-        setOverallQuality('DISCONNECTED');
+        currentQuality = 'DISCONNECTED';
       } else if (pulseRes.quality === 'LOW_QUALITY' || gsrRes.quality === 'LOW_QUALITY') {
-        setOverallQuality('LOW_QUALITY');
+        currentQuality = 'LOW_QUALITY';
       } else if (gsrProcRef.current.isCalibrationActive()) {
-        setOverallQuality('CALIBRATING');
+        currentQuality = 'CALIBRATING';
       } else if (pulseRes.quality === 'VALID' && gsrRes.quality === 'VALID') {
-        setOverallQuality('VALID');
+        currentQuality = 'VALID';
       } else {
-        setOverallQuality(pulseRes.quality);
+        currentQuality = pulseRes.quality;
       }
 
-      // Append to visual oscilloscope buffer (max 150 points for 60fps rendering)
-      setPulseHistory((prev) => {
-        const updated = [
-          ...prev,
-          {
-            timestampMs: now,
-            rawAdc: rawPulse,
-            filteredAc: wave,
-            threshold: 2048,
-            isPeak: pulseRes.beatDetected,
-          },
-        ];
-        return updated.length > 150 ? updated.slice(updated.length - 150) : updated;
+      simulatorPulseHistoryRef.current.push({
+        timestampMs: now,
+        rawAdc: rawPulse,
+        filteredAc: wave,
+        threshold: 2048,
+        isPeak: pulseRes.beatDetected,
       });
+      if (simulatorPulseHistoryRef.current.length > 150) {
+        simulatorPulseHistoryRef.current = simulatorPulseHistoryRef.current.slice(-150);
+      }
 
-      // Append to GSR trend buffer (max 100 points)
-      setGsrHistory((prev) => {
-        const updated = [
-          ...prev,
-          {
-            timestampMs: now,
-            relativeChange: gsrRes.relativeChange ?? 0,
-            smoothedAdc: gsrRes.smoothedAdc ?? 1400,
-            baseline: gsrRes.baselineAdc ?? 1400,
-          },
-        ];
-        return updated.length > 100 ? updated.slice(updated.length - 100) : updated;
+      simulatorGsrHistoryRef.current.push({
+        timestampMs: now,
+        relativeChange: gsrRes.relativeChange ?? 0,
+        smoothedAdc: gsrRes.smoothedAdc ?? 1400,
+        baseline: gsrRes.baselineAdc ?? 1400,
       });
+      if (simulatorGsrHistoryRef.current.length > 100) {
+        simulatorGsrHistoryRef.current = simulatorGsrHistoryRef.current.slice(-100);
+      }
+
+      // Keep 50Hz signal processing while limiting DOM and canvas work to 10Hz.
+      if (now - lastSimulatorUiUpdateRef.current >= 100) {
+        lastSimulatorUiUpdateRef.current = now;
+        setLatestPulse(pulseRes);
+        setLatestGsr(gsrRes);
+        setIsCalibrating(gsrProcRef.current.isCalibrationActive());
+        setCalibrationProgress(gsrProcRef.current.getCalibrationProgress());
+        setOverallQuality(currentQuality);
+        setPulseHistory([...simulatorPulseHistoryRef.current]);
+        setGsrHistory([...simulatorGsrHistoryRef.current]);
+      }
 
       // Record to session if active
       if (isRecording) {
@@ -226,7 +283,7 @@ export default function App() {
   useEffect(() => {
     const timer = setInterval(() => {
       setLastDataAgeMs(Math.max(0, Date.now() - lastPacketTimeRef.current));
-    }, 250);
+    }, 1000);
     return () => clearInterval(timer);
   }, []);
 
@@ -381,15 +438,15 @@ export default function App() {
   }, [isRecording]);
 
   // Session start/stop handlers
-  const handleStartSession = () => {
+  const handleStartSession = useCallback(() => {
     setSessionRecord(null);
     setIsRecording(true);
     setSessionStartTime(Date.now());
     setSessionDuration(0);
     sessionSamplesRef.current = [];
-  };
+  }, []);
 
-  const handleStopSession = () => {
+  const handleStopSession = useCallback(() => {
     setIsRecording(false);
     const samples = sessionSamplesRef.current;
     if (samples.length === 0) return;
@@ -425,7 +482,7 @@ export default function App() {
     };
 
     setSessionRecord(record);
-  };
+  }, [sessionStartTime, sessionDuration, overallQuality]);
 
   const sessionGsrChanges = sessionRecord?.samples
     .filter((sample) => sample.gsrRelativeChange !== null)
@@ -491,7 +548,7 @@ export default function App() {
     pulseProcRef.current.reset();
   };
 
-  const handleConnectionModeChange = (mode: 'simulator' | 'device_ip') => {
+  const handleConnectionModeChange = useCallback((mode: 'simulator' | 'device_ip') => {
     setConnectionMode(mode);
     setDeviceError(null);
     setCalibrationError(null);
@@ -519,16 +576,19 @@ export default function App() {
     setOverallQuality('INITIALIZING');
     setPulseHistory([]);
     setGsrHistory([]);
-  };
+    simulatorPulseHistoryRef.current = [];
+    simulatorGsrHistoryRef.current = [];
+    lastSimulatorUiUpdateRef.current = 0;
+  }, []);
 
-  const handleDeviceIpChange = (ip: string) => {
+  const handleDeviceIpChange = useCallback((ip: string) => {
     setDeviceIp(ip);
     window.localStorage.setItem('sentinel-device-ip', ip);
-  };
+  }, []);
 
-  const handleUseAccessPointIp = () => handleDeviceIpChange('192.168.4.1');
+  const handleUseAccessPointIp = useCallback(() => handleDeviceIpChange('192.168.4.1'), [handleDeviceIpChange]);
 
-  const handleApplyPreset = (name: string) => {
+  const handleApplyPreset = useCallback((name: string) => {
     setSimDisconnected(false);
     if (name === 'resting') {
       setSimTargetBpm(72);
@@ -545,7 +605,12 @@ export default function App() {
     } else if (name === 'disconnect') {
       setSimDisconnected(true);
     }
-  };
+  }, []);
+
+  const handleConnectToggle = useCallback(() => {
+    setIsConnected((connected) => !connected);
+    setDeviceError(null);
+  }, []);
 
   return (
     <div className="sentinel-app min-h-screen bg-[#f1f6f5] text-slate-900 flex flex-col font-sans selection:bg-teal-200 selection:text-teal-950">
@@ -559,10 +624,7 @@ export default function App() {
         setDeviceIp={handleDeviceIpChange}
         onUseAccessPointIp={handleUseAccessPointIp}
         isConnected={isConnected}
-        onConnectToggle={() => {
-          setIsConnected(!isConnected);
-          setDeviceError(null);
-        }}
+        onConnectToggle={handleConnectToggle}
         deviceError={deviceError}
         overallQuality={overallQuality}
         isRecording={isRecording}
@@ -604,62 +666,88 @@ export default function App() {
             />
 
             {/* Real-Time Waveform Oscilloscopes */}
-            <RealTimeOscilloscope
-              pulseHistory={pulseHistory}
-              gsrHistory={gsrHistory}
-              isPulseValid={latestPulse.valid}
-              isGsrValid={latestGsr.valid}
-            />
+            <DeferredContent className="deferred-waveforms">
+              <Suspense fallback={<div className="min-h-130" aria-busy="true" />}>
+                <RealTimeOscilloscope
+                  pulseHistory={pulseHistory}
+                  gsrHistory={gsrHistory}
+                  isPulseValid={latestPulse.valid}
+                  isGsrValid={latestGsr.valid}
+                />
+              </Suspense>
+            </DeferredContent>
 
             {/* Groq AI Wellness Assistant */}
-            <AiAssistantPanel
-              key={sessionRecord?.id ?? 'no-completed-session'}
-              sessionDuration={sessionRecord?.durationSeconds ?? 0}
-              meanBpm={sessionRecord?.summary.meanBpm ?? null}
-              minBpm={sessionRecord?.summary.minBpm ?? null}
-              maxBpm={sessionRecord?.summary.maxBpm ?? null}
-              validBeatRatio={sessionRecord && sessionRecord.summary.totalSamples > 0
-                ? sessionRecord.summary.validBpmSamples / sessionRecord.summary.totalSamples
-                : 0}
-              gsrRelativeChange={sessionMeanGsrChange}
-              gsrTrend={sessionGsrTrend}
-              overallQuality={sessionRecord?.summary.overallDataQuality ?? 'INITIALIZING'}
-            />
+            <DeferredContent className="deferred-ai">
+              <Suspense fallback={<div className="min-h-56" aria-busy="true" />}>
+                <AiAssistantPanel
+                  key={sessionRecord?.id ?? 'no-completed-session'}
+                  sessionDuration={sessionRecord?.durationSeconds ?? 0}
+                  meanBpm={sessionRecord?.summary.meanBpm ?? null}
+                  minBpm={sessionRecord?.summary.minBpm ?? null}
+                  maxBpm={sessionRecord?.summary.maxBpm ?? null}
+                  validBeatRatio={sessionRecord && sessionRecord.summary.totalSamples > 0
+                    ? sessionRecord.summary.validBpmSamples / sessionRecord.summary.totalSamples
+                    : 0}
+                  gsrRelativeChange={sessionMeanGsrChange}
+                  gsrTrend={sessionGsrTrend}
+                  overallQuality={sessionRecord?.summary.overallDataQuality ?? 'INITIALIZING'}
+                />
+              </Suspense>
+            </DeferredContent>
 
             {/* Interactive Hardware Diagnostic & Signal Generator (When in simulator mode) */}
             {connectionMode === 'simulator' && (
-              <SimulatorControls
-                simTargetBpm={simTargetBpm}
-                setSimTargetBpm={setSimTargetBpm}
-                simGsrDeflection={simGsrDeflection}
-                setSimGsrDeflection={setSimGsrDeflection}
-                simNoiseLevel={simNoiseLevel}
-                setSimNoiseLevel={setSimNoiseLevel}
-                simDisconnected={simDisconnected}
-                setSimDisconnected={setSimDisconnected}
-                onApplyPreset={handleApplyPreset}
-              />
+              <DeferredContent className="deferred-simulator">
+                <Suspense fallback={<div className="min-h-80" aria-busy="true" />}>
+                  <SimulatorControls
+                    simTargetBpm={simTargetBpm}
+                    setSimTargetBpm={setSimTargetBpm}
+                    simGsrDeflection={simGsrDeflection}
+                    setSimGsrDeflection={setSimGsrDeflection}
+                    simNoiseLevel={simNoiseLevel}
+                    setSimNoiseLevel={setSimNoiseLevel}
+                    simDisconnected={simDisconnected}
+                    setSimDisconnected={setSimDisconnected}
+                    onApplyPreset={handleApplyPreset}
+                  />
+                </Suspense>
+              </DeferredContent>
             )}
           </div>
         )}
 
         {/* Tab 2: Session Analytics & CSV */}
         {activeTab === 'session' && (
-          <SessionManager
-            session={sessionRecord}
-            onClearSession={() => setSessionRecord(null)}
-            isRecording={isRecording}
-          />
+          <Suspense fallback={<div className="min-h-64" aria-busy="true" />}>
+            <SessionManager
+              session={sessionRecord}
+              onClearSession={() => setSessionRecord(null)}
+              isRecording={isRecording}
+            />
+          </Suspense>
         )}
 
         {/* Tab 3: Hardware & Wiring Center */}
-        {activeTab === 'hardware' && <HardwareHub />}
+        {activeTab === 'hardware' && (
+          <Suspense fallback={<div className="min-h-64" aria-busy="true" />}>
+            <HardwareHub />
+          </Suspense>
+        )}
 
         {/* Tab 4: Firmware Source Exporter */}
-        {activeTab === 'firmware' && <FirmwareExporter />}
+        {activeTab === 'firmware' && (
+          <Suspense fallback={<div className="min-h-64" aria-busy="true" />}>
+            <FirmwareExporter />
+          </Suspense>
+        )}
 
         {/* Tab 5: Engineering Docs */}
-        {activeTab === 'docs' && <DocumentationViewer />}
+        {activeTab === 'docs' && (
+          <Suspense fallback={<div className="min-h-64" aria-busy="true" />}>
+            <DocumentationViewer />
+          </Suspense>
+        )}
       </main>
 
       {/* Footer */}

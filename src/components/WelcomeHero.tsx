@@ -1,7 +1,7 @@
-import React from 'react';
+import React, { memo } from 'react';
 import { Heart, HeartPulse } from 'lucide-react';
 
-export const WelcomeHero: React.FC = () => (
+export const WelcomeHero: React.FC = memo(() => (
   <section className="welcome-hero" aria-labelledby="welcome-title">
     <div className="welcome-copy">
       <div className="welcome-eyebrow">
@@ -32,4 +32,4 @@ export const WelcomeHero: React.FC = () => (
       </div>
     </div>
   </section>
-);
+));
