@@ -26,24 +26,24 @@ import { Heart } from "lucide-react";
 import { FaGithub, FaLinkedinIn, FaWhatsapp } from "react-icons/fa";
 
 const ContactMe = [
-  { id: "GitHub", href: "https://github.com/Harsh", icon: FaGithub },
+  { id: "GitHub", href: "https://github.com/HarshProDev", icon: FaGithub },
   {
     id: "WhatsApp",
-    href: "https://wa.me/9180XXXXXX91?text=%20Hii%20Harsh%20i%20would%20love%20to%20work%20with%20you",
+    href: "https://wa.me/918053050291?text=%20Hii%20Harsh%20i%20would%20love%20to%20work%20with%20you",
     icon: FaWhatsapp,
   },
   {
     id: "LinkedIn",
-    href: "https://linkedin.com/in/harsh",
+    href: "https://linkedin.com/in/harshbhukal-dev",
     icon: FaLinkedinIn,
   },
 ];
 
 const ContactBh = [
-  { id: "GitHub", href: "https://github.com/bhupesh", icon: FaGithub },
+  { id: "GitHub", href: "https://github.com/Bhupeshpuri", icon: FaGithub },
   {
     id: "WhatsApp",
-    href: "https://wa.me/918XXXXXX52?text=%20Hii%20Bhupesh%20i%20would%20love%20to%20work%20with%20you",
+    href: "https://wa.me/918950678752?text=%20Hii%20Bhupesh%20i%20would%20love%20to%20work%20with%20you",
     icon: FaWhatsapp,
   },
   {
