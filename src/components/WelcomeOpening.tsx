@@ -86,7 +86,7 @@ export const WelcomeOpening: React.FC = () => {
 
   return (
     <>
-      {!isVisible && (
+      {/* {!isVisible && (
         <button
           type="button"
           className="welcome-replay"
@@ -96,7 +96,7 @@ export const WelcomeOpening: React.FC = () => {
           <RotateCw size={14} aria-hidden="true" />
           <span>Replay opening</span>
         </button>
-      )}
+      )} */}
       {isVisible && (
         <section
           className={`welcome-opening${isOpening ? ' is-opening' : ''}`}

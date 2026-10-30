@@ -1,5 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { BookOpen, Search, FileText, ExternalLink, RefreshCw } from 'lucide-react';
+import { BookOpen, Search, FileText, RefreshCw } from 'lucide-react';
+
+const documentation = import.meta.glob('../../docs/*.md', {
+  query: '?raw',
+  import: 'default',
+  eager: true,
+}) as Record<string, string>;
 
 const DOC_INDEX = [
   { id: 'ASSEMBLE', title: '18-Step Assembly Manual', file: 'ASSEMBLE.md' },
@@ -24,15 +30,10 @@ export const DocumentationViewer: React.FC = () => {
 
   useEffect(() => {
     setLoading(true);
-    fetch(`/api/docs/${selectedDoc}`)
-      .then((res) => res.json())
-      .then((data) => {
-        setDocContent(data.content || 'Documentation content not available.');
-      })
-      .catch((err) => {
-        setDocContent(`Error loading documentation: ${err.message}`);
-      })
-      .finally(() => setLoading(false));
+    const doc = DOC_INDEX.find(({ id }) => id === selectedDoc);
+    const content = doc ? documentation[`../../docs/${doc.file}`] : undefined;
+    setDocContent(content || 'Documentation content not available.');
+    setLoading(false);
   }, [selectedDoc]);
 
   const filteredDocs = DOC_INDEX.filter((d) =>

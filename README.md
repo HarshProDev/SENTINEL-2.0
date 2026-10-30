@@ -76,6 +76,12 @@ Then run Lighthouse against `http://localhost:3000`. The development server inte
 * **Using Arduino IDE:**
   Open `firmware/sentinel/sentinel.ino`, select `DOIT ESP32 DEVKIT V1`, and click Upload.
 
+## Session Report and Connectivity Notes
+
+* In **Session Analytics**, enter the patient's name, sex (M/F), and age after recording. The report is branded **SENTINEL v2.0**, includes all session readings and the generated AI interpretation, and can be printed or saved as PDF. A PNG, JPEG, or WebP signature image can be added; patient details and signature remain in page memory and are not sent to the AI service.
+* For local ESP32 testing, run the dashboard on the same Wi-Fi network as the device using `npm run dev`. The browser must be able to reach the ESP32's current OLED IP directly.
+* A deployed HTTPS page cannot directly read the ESP32's private `10.x.x.x` address over HTTP: browsers block this mixed content, and private addresses are only reachable on their local network. Making physical readings available remotely needs a secure cloud relay; we will choose and implement that separately. Do not expose the ESP32's unauthenticated HTTP API directly to the internet.
+
 ---
 
 ## Documentation Index

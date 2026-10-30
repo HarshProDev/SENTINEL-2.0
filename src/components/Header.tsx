@@ -151,7 +151,9 @@ export const Header: React.FC<HeaderProps> = memo(({
               )}
               {!deviceError && (
                 <span className="basis-full text-[11px] text-slate-400">
-                  Enter the ESP32 IP shown on its OLED. SoftAP mode can work without internet access.
+                  {window.location.protocol === 'https:'
+                    ? 'Remote access requires a secure cloud relay; this HTTPS page cannot directly read a private ESP32 IP.'
+                    : 'Enter the ESP32 IP shown on its OLED. SoftAP mode can work without internet access.'}
                 </span>
               )}
             </div>

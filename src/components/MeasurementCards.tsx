@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { memo } from 'react';
 import { Heart, Zap, RefreshCw, ShieldCheck, AlertCircle, Compass, RotateCcw } from 'lucide-react';
 import { PulseMeasurement, GsrMeasurement } from '../types/sentinel';
 
@@ -12,7 +12,7 @@ interface MeasurementCardsProps {
   calibrationError: string | null;
 }
 
-export const MeasurementCards: React.FC<MeasurementCardsProps> = ({
+export const MeasurementCards: React.FC<MeasurementCardsProps> = memo(({
   pulse,
   gsr,
   onStartCalibration,
@@ -252,4 +252,4 @@ export const MeasurementCards: React.FC<MeasurementCardsProps> = ({
       </div>
     </div>
   );
-};
+});

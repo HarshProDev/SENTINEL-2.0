@@ -5,7 +5,7 @@
 SENTINEL 2.0 strictly adheres to the principle of data minimization:
 1. **No Raw Telemetry to Cloud:** Continuous 100Hz raw waveform data (millions of raw ADC samples) is **NEVER** sent to Groq or any external API. Raw waveforms reside solely in the browser's local memory or IndexedDB.
 2. **Aggregated Summaries Only:** Only a pre-computed mathematical summary (session duration, mean/minimum/maximum BPM, BPM stability category, GSR relative percentage deflection, directional trend, signal quality, and valid-pulse ratio) is transmitted when the user explicitly clicks "Request AI Interpretation". The API key is used only in the server-to-provider authorization header; it is not part of the prompt or browser payload.
-3. **Protected API Keys:** The `GROQ_API_KEY` is loaded strictly server-side from environment variables (`.env`). It is never bundled into client JavaScript, firmware flash, or public Git commits.
+3. **Protected API Keys:** The `GROQ_API_KEY` is loaded strictly server-side from environment variables (`.env` locally, or Vercel Environment Variables when deployed). It is never bundled into client JavaScript, firmware flash, or public Git commits.
 
 ---
 

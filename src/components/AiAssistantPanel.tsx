@@ -11,6 +11,7 @@ interface AiAssistantPanelProps {
   gsrRelativeChange: number | null;
   gsrTrend: 'STABLE' | 'RISING' | 'FALLING' | 'INDETERMINATE';
   overallQuality: SignalQuality;
+  onResponse: (response: AiInterpretationResponse) => void;
 }
 
 export const AiAssistantPanel: React.FC<AiAssistantPanelProps> = memo(({
@@ -22,6 +23,7 @@ export const AiAssistantPanel: React.FC<AiAssistantPanelProps> = memo(({
   gsrRelativeChange,
   gsrTrend,
   overallQuality,
+  onResponse,
 }) => {
   const [loading, setLoading] = useState(false);
   const [response, setResponse] = useState<AiInterpretationResponse | null>(null);
@@ -72,6 +74,7 @@ export const AiAssistantPanel: React.FC<AiAssistantPanelProps> = memo(({
 
       const data: AiInterpretationResponse = await res.json();
       setResponse(data);
+      onResponse(data);
     } catch (err) {
       setErrorMessage((err as Error).message || 'Failed to request AI analysis');
     } finally {
@@ -104,9 +107,9 @@ export const AiAssistantPanel: React.FC<AiAssistantPanelProps> = memo(({
           <button
             onClick={handleRequestAi}
             disabled={!isEligible || loading}
-            className={`text-xs px-4 py-2 rounded-lg font-semibold flex items-center gap-2 transition-all ${isEligible
-                ? 'bg-linear-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white shadow-md shadow-cyan-950'
-                : 'bg-slate-800 text-slate-500 cursor-not-allowed border border-slate-700/50'
+            className={`min-w-52 justify-center text-xs px-4 py-2 rounded-lg font-semibold flex items-center gap-2 transition-colors ${isEligible
+              ? 'bg-linear-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white shadow-md shadow-cyan-950'
+              : 'bg-slate-800 text-slate-500 cursor-not-allowed border border-slate-700/50'
               }`}
           >
             {loading ? (
@@ -144,9 +147,10 @@ export const AiAssistantPanel: React.FC<AiAssistantPanelProps> = memo(({
         </div>
       )}
 
-      {/* Response Card */}
-      {response && (
-        <div className="ai-response bg-slate-950 border border-slate-800/90 rounded-xl p-4 mt-2">
+      <div className="ai-result-region" aria-live="polite" aria-busy={loading}>
+        {/* Response Card */}
+        {response ? (
+          <div className="ai-response bg-slate-950 border border-slate-800/90 rounded-xl p-4 mt-2">
           {/* Header Bar */}
           <div className="flex flex-wrap items-center justify-between gap-2 pb-3 mb-3 border-b border-slate-800/80 text-xs">
             <div className="flex items-center gap-2">
@@ -228,7 +232,7 @@ export const AiAssistantPanel: React.FC<AiAssistantPanelProps> = memo(({
               </span>
               <ol className="ai-accent list-decimal list-inside text-cyan-200 leading-relaxed bg-cyan-950/30 p-3 rounded-lg border border-cyan-900/40 space-y-2">
                 {response.recommendations.map((recommendation, idx) => (
-                  <li key={idx}>{recommendation}</li>
+                  <li className='text-emerald-800' key={idx}>{recommendation}</li>
                 ))}
               </ol>
             </div>
@@ -247,7 +251,21 @@ export const AiAssistantPanel: React.FC<AiAssistantPanelProps> = memo(({
             )}
           </div>
         </div>
+      ) : (
+        <div className="ai-result-placeholder rounded-xl border border-slate-800/80 bg-slate-950/50 p-4 mt-2">
+          {loading ? (
+            <div className="flex items-center gap-3 text-sm text-slate-300" role="status">
+              <RefreshCw className="w-4 h-4 animate-spin text-cyan-500" />
+              <span>Generating your session interpretation. Your readings remain available above.</span>
+            </div>
+          ) : (
+            <p className="text-sm text-slate-500">
+              Your AI interpretation will appear here after you request it. Your session summary stays on screen while the response is generated.
+            </p>
+          )}
+        </div>
       )}
+      </div>
 
       {/* Error Banner */}
       {errorMessage && (

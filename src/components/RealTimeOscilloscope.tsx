@@ -1,4 +1,4 @@
-import React, { useRef, useEffect, useState } from 'react';
+import React, { memo, useRef, useEffect, useState } from 'react';
 import { Pause, Play, ZoomIn, ZoomOut, Maximize2 } from 'lucide-react';
 
 interface WaveformPoint {
@@ -23,7 +23,7 @@ interface RealTimeOscilloscopeProps {
   isGsrValid: boolean;
 }
 
-export const RealTimeOscilloscope: React.FC<RealTimeOscilloscopeProps> = ({
+export const RealTimeOscilloscope: React.FC<RealTimeOscilloscopeProps> = memo(({
   pulseHistory,
   gsrHistory,
   isPulseValid,
@@ -328,4 +328,4 @@ export const RealTimeOscilloscope: React.FC<RealTimeOscilloscopeProps> = ({
       </div>
     </div>
   );
-};
+});

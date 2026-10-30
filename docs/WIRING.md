@@ -59,33 +59,10 @@
 
 ---
 
-## 5. Circuit Architecture Diagram (Text Schematic)
+## 5. Circuit Architecture Diagram
 
-```
-        +-----------------------------------------+
-        |            ESP32 DEVKIT V1              |
-        |                                         |
-        |  [3V3] ----+-------+-------+            |
-        |            |       |       |            |
-        |  [GND] ----+-------+-------+            |
-        |            |       |       |            |
-        |  [GPIO 34] <-------|-------|-- Signal   |
-        |  [GPIO 35] <-------|-- Sig |            |
-        |  [GPIO 21] <-------|-------|---- SDA    |
-        |  [GPIO 22] <-------|-------|---- SCL    |
-        +------------+-------+-------+------------+
-                     |       |       |
-                     |       |       +--> [SSD1306 OLED]
-                     |       |            (VCC, GND, SDA, SCL)
-                     |       |
-                     |       +----------> [GSR Sensor Module]
-                     |                    (VCC, GND, SIG)
-                     |                    Finger Electrodes
-                     |
-                     +------------------> [Optical Pulse Sensor]
-                                          (VCC, GND, Signal)
-                                          Fingertip Photodiode
-```
+'@public/SENTINEL v2.0.jpeg'
+
 
 ---
 
